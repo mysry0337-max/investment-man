@@ -1,0 +1,470 @@
+# investment-man
+Investment Man Website
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investment Man</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+    font-family:Arial,Tahoma,sans-serif;
+    min-height:100vh;
+    color:#fff;
+    background:#050914;
+    overflow-x:hidden;
+}
+
+/* خلفية الأسهم */
+.market-bg{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    z-index:-2;
+}
+
+.market-bg::before{
+    content:"";
+    position:absolute;
+    inset:-20%;
+    background:
+      linear-gradient(135deg,transparent 45%,rgba(0,255,170,.12) 46%,transparent 47%),
+      linear-gradient(45deg,transparent 45%,rgba(0,170,255,.10) 46%,transparent 47%);
+    background-size:180px 180px;
+    animation:moveGrid 12s linear infinite;
+}
+
+@keyframes moveGrid{
+    from{transform:translate(0,0)}
+    to{transform:translate(180px,180px)}
+}
+
+.chart{
+    position:absolute;
+    bottom:10%;
+    left:5%;
+    width:90%;
+    height:180px;
+    opacity:.35;
+}
+
+.chart span{
+    position:absolute;
+    width:3px;
+    background:#00e6a0;
+    bottom:0;
+    animation:bars 2s ease-in-out infinite alternate;
+}
+
+.chart span:nth-child(1){left:5%;height:35%}
+.chart span:nth-child(2){left:15%;height:55%}
+.chart span:nth-child(3){left:25%;height:42%}
+.chart span:nth-child(4){left:35%;height:72%}
+.chart span:nth-child(5){left:45%;height:60%}
+.chart span:nth-child(6){left:55%;height:88%}
+.chart span:nth-child(7){left:65%;height:70%}
+.chart span:nth-child(8){left:75%;height:95%}
+.chart span:nth-child(9){left:85%;height:78%}
+
+@keyframes bars{
+    to{transform:scaleY(.65)}
+}
+
+/* الهيدر */
+header{
+    padding:18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+}
+
+.logo{
+    font-size:25px;
+    font-weight:800;
+    letter-spacing:.5px;
+}
+
+.service{
+    position:absolute;
+    left:15px;
+    top:18px;
+    font-size:11px;
+    color:#9da8bc;
+    direction:ltr;
+}
+
+/* الرصيد */
+.balance{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    direction:rtl;
+}
+
+.balance-box{
+    background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.13);
+    backdrop-filter:blur(12px);
+    border-radius:14px;
+    padding:9px 13px;
+    min-width:125px;
+}
+
+.balance-title{
+    font-size:11px;
+    color:#9da8bc;
+}
+
+.balance-value{
+    font-size:17px;
+    font-weight:bold;
+    margin-top:3px;
+    direction:ltr;
+}
+
+.plus{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    border:0;
+    color:#fff;
+    background:linear-gradient(135deg,#00d99a,#008cff);
+    font-size:27px;
+    cursor:pointer;
+    box-shadow:0 0 20px rgba(0,220,170,.25);
+    transition:.25s;
+}
+
+.plus:hover{
+    transform:rotate(90deg) scale(1.08);
+}
+
+/* المحتوى */
+.container{
+    width:min(900px,92%);
+    margin:45px auto;
+    text-align:center;
+}
+
+.hero h1{
+    font-size:clamp(38px,8vw,72px);
+    margin-bottom:12px;
+    background:linear-gradient(90deg,#fff,#61ffd1,#69aaff);
+    -webkit-background-clip:text;
+    color:transparent;
+}
+
+.hero p{
+    color:#aeb8c9;
+    margin-bottom:30px;
+}
+
+.buttons{
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    flex-wrap:wrap;
+}
+
+.btn{
+    border:0;
+    border-radius:13px;
+    padding:15px 35px;
+    font-size:17px;
+    font-weight:bold;
+    cursor:pointer;
+    color:#fff;
+    transition:.25s;
+}
+
+.btn:hover{
+    transform:translateY(-3px);
+}
+
+.deposit{
+    background:linear-gradient(135deg,#00c98b,#008cff);
+}
+
+.withdraw{
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.15);
+}
+
+/* الفيديو */
+.video-box{
+    margin:45px auto 25px;
+    max-width:700px;
+    aspect-ratio:16/8;
+    border-radius:20px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.12);
+    background:linear-gradient(135deg,#10192b,#07111f);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#8190a8;
+}
+
+.video-box .play{
+    width:65px;
+    height:65px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,220,170,.15);
+    border:1px solid #00d99a;
+    font-size:25px;
+}
+
+/* نافذة */
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.7);
+    backdrop-filter:blur(5px);
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:20;
+}
+
+.modal.active{
+    display:flex;
+}
+
+.modal-card{
+    width:min(430px,100%);
+    background:#0d1525;
+    border:1px solid rgba(255,255,255,.13);
+    border-radius:22px;
+    padding:25px;
+    animation:popup .25s ease;
+    position:relative;
+}
+
+@keyframes popup{
+    from{transform:scale(.85);opacity:0}
+    to{transform:scale(1);opacity:1}
+}
+
+.close{
+    position:absolute;
+    left:15px;
+    top:12px;
+    background:none;
+    border:0;
+    color:#aaa;
+    font-size:25px;
+    cursor:pointer;
+}
+
+.modal-card h2{
+    margin-bottom:7px;
+}
+
+.small{
+    color:#8f9bb0;
+    font-size:13px;
+    margin-bottom:20px;
+}
+
+.phone{
+    direction:ltr;
+    background:#070d18;
+    border:1px solid rgba(255,255,255,.12);
+    padding:15px;
+    border-radius:12px;
+    font-size:22px;
+    font-weight:bold;
+    text-align:center;
+    margin-bottom:12px;
+}
+
+.copy{
+    width:100%;
+    padding:13px;
+    border:0;
+    border-radius:11px;
+    background:#fff;
+    color:#07111f;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+input{
+    width:100%;
+    padding:14px;
+    margin-top:10px;
+    margin-bottom:12px;
+    border-radius:11px;
+    border:1px solid rgba(255,255,255,.12);
+    background:#070d18;
+    color:#fff;
+    outline:none;
+}
+
+.notice{
+    color:#7f8ba0;
+    font-size:11px;
+    line-height:1.7;
+    margin-top:15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="market-bg">
+    <div class="chart">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+    </div>
+</div>
+
+<header>
+
+    <div class="logo">Investment Man</div>
+
+    <div class="service">
+        Vodafone Cash Transfer Service
+    </div>
+
+    <div class="balance">
+        <div class="balance-box">
+            <div class="balance-title">رصيدك</div>
+            <div class="balance-value">0.00 EGP</div>
+        </div>
+
+        <button class="plus" onclick="openDeposit()">+</button>
+    </div>
+
+</header>
+
+<main class="container">
+
+    <section class="hero">
+        <h1>Investment Man</h1>
+        <p>واجهة رقمية لإدارة طلبات التحويل والإيداع والسحب</p>
+
+        <div class="buttons">
+            <button class="btn deposit" onclick="openDeposit()">
+                Deposit
+            </button>
+
+            <button class="btn withdraw" onclick="openWithdraw()">
+                Withdraw
+            </button>
+        </div>
+    </section>
+
+    <div class="video-box">
+        <div>
+            <div class="play">▶</div>
+            <p style="margin-top:10px">Video Area</p>
+        </div>
+    </div>
+
+</main>
+
+
+<!-- نافذة الإيداع -->
+<div class="modal" id="depositModal">
+    <div class="modal-card">
+
+        <button class="close" onclick="closeModals()">×</button>
+
+        <h2>Deposit</h2>
+        <div class="small">
+            Vodafone Cash
+        </div>
+
+        <div class="phone" id="phone">
+            01012319167
+        </div>
+
+        <button class="copy" onclick="copyNumber()">
+            Copy Number
+        </button>
+
+        <input type="number" placeholder="مبلغ التحويل">
+
+        <input type="text" placeholder="رقم العملية / المرجع">
+
+        <button class="btn deposit" style="width:100%">
+            Submit Transfer
+        </button>
+
+        <div class="notice">
+            تأكد من بيانات التحويل قبل الإرسال. هذه الصفحة لا تؤكد وصول الأموال تلقائيًا.
+        </div>
+
+    </div>
+</div>
+
+
+<!-- نافذة السحب -->
+<div class="modal" id="withdrawModal">
+    <div class="modal-card">
+
+        <button class="close" onclick="closeModals()">×</button>
+
+        <h2>Withdraw</h2>
+        <div class="small">
+            Request a withdrawal
+        </div>
+
+        <input type="number" placeholder="المبلغ">
+
+        <input type="text" placeholder="رقم Vodafone Cash">
+
+        <button class="btn withdraw" style="width:100%">
+            Submit Request
+        </button>
+
+        <div class="notice">
+            طلب السحب هنا واجهة فقط ولا ينفذ تحويلًا تلقائيًا.
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+function openDeposit(){
+    document.getElementById("depositModal").classList.add("active");
+}
+
+function openWithdraw(){
+    document.getElementById("withdrawModal").classList.add("active");
+}
+
+function closeModals(){
+    document.querySelectorAll(".modal")
+        .forEach(m => m.classList.remove("active"));
+}
+
+function copyNumber(){
+    const number = document.getElementById("phone").innerText.trim();
+
+    navigator.clipboard.writeText(number).then(()=>{
+        alert("تم نسخ رقم Vodafone Cash");
+    });
+}
+
+document.querySelectorAll(".modal").forEach(modal=>{
+    modal.addEventListener("click",function(e){
+        if(e.target === modal){
+            closeModals();
+        }
+    });
+});
+</script>
+
+</body>
+  </html>
